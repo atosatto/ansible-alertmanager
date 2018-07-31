@@ -21,7 +21,7 @@ Available variables are listed below, along with default values (see defaults/ma
     alertmanager_release_tag: "latest"
 
 The Prometheus release to be installed.
-By default, the latest release published at https://github.com/alertmanager/alertmanager/releases.
+By default, the latest release published at https://github.com/prometheus/alertmanager/releases.
 
     alertmanager_user: "alertmanager"
     alertmanager_group: "alertmanager"
