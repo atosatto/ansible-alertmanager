@@ -1,0 +1,6 @@
+---
+
+- name: Install Alertmanager
+  hosts: all
+  roles:
+    - { role: ansible-alertmanager }

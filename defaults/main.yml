@@ -1,0 +1,35 @@
+---
+
+# The Alertmanager release to be installed
+alertmanager_release_tag: "latest"
+
+# Alertmanager user and group
+alertmanager_user: "alertmanager"
+alertmanager_group: "alertmanager"
+
+# Directory containing the downloaded Alertmanager release
+alertmanager_install_path: "/opt"
+
+# Directory to which symlink the installed Alertmanager binaries
+alertmanager_bin_path: "/usr/local/bin"
+
+# Alertmanager configuration file and directory
+alertmanager_config_path: "/etc/alertmanager"
+alertmanager_config_file: "alertmanager.yml"
+
+# Alertmanager configuration
+# (see https://alertmanager.io/docs/alerting/configuration/)
+alertmanager_config: {}
+
+# Alertmanager WebServer listen address
+alertmanager_listen_address: "127.0.0.1:9093"
+
+# Alertmanager local storage path
+alertmanager_storage_path: "/var/lib/alertmanager"
+alertmanager_storage_retention: "120h"
+
+# Alertmanager log level
+alertmanager_log_level: "info"
+
+# Additional command-line arguments to be added to the Alertmanager unit
+alertmanager_additional_cli_args: ""

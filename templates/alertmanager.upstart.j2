@@ -1,0 +1,35 @@
+description "Alertmanager"
+start on runlevel [2345]
+stop on runlevel [06]
+
+env ALERTMANAGER={{ alertmanager_bin_path }}/alertmanager
+env USER={{ alertmanager_user }}
+env GROUP={{ alertmanager_group }}
+env DEFAULTS=/etc/default/alertmanager
+env RUNDIR=/var/run/alertmanager
+env PID_FILE=/var/run/alertmanager/alertmanager.pid
+
+pre-start script
+  [ -e $DEFAULTS ] && . $DEFAULTS
+
+  mkdir -p $RUNDIR           || true
+  chmod 0750 $RUNDIR         || true
+  chown $USER:$GROUP $RUNDIR || true
+end script
+
+script
+    # read settings from "/etc/default/alertmanager", if available.
+    [ -e $DEFAULTS ] && . $DEFAULTS
+
+    exec start-stop-daemon -c $USER -g $GROUP -p $PID_FILE -x $ALERTMANAGER -S -- \
+      --config.file {{ alertmanager_config_path }}/{{ alertmanager_config_file }} \
+      --web.listen-address {{ alertmanager_listen_address }} \
+      --storage.path {{ alertmanager_storage_path }} \
+      --data.retention {{ alertmanager_storage_retention }} \
+      --log.level {{ alertmanager_log_level }} \
+      {{ alertmanager_additional_cli_args }}
+end script
+
+respawn
+respawn limit 10 10
+kill timeout 10

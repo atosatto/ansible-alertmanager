@@ -1,0 +1,12 @@
+---
+
+- name: restart alertmanager
+  service:
+    name: alertmanager
+    state: restarted
+
+- name: reload systemd and restart alertmanager
+  command: systemctl daemon-reload
+  notify: restart alertmanager
+  tags:
+    - skip_ansible_lint

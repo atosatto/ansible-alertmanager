@@ -1,0 +1,57 @@
+---
+
+- name: Create the Alertmanager Storage directory
+  file:
+    name: "{{ alertmanager_storage_path }}"
+    state: directory
+    owner: "{{ alertmanager_user }}"
+    group: "{{ alertmanager_group }}"
+    mode: 0755
+
+- name: Create the Alertmanager configuration directory
+  file:
+    name: "{{ alertmanager_config_path }}"
+    state: directory
+    owner: "{{ alertmanager_user }}"
+    group: "{{ alertmanager_group }}"
+    mode: 0755
+
+- name: Create the Alertmanager configuration file
+  template:
+    src: alertmanager.yml.j2
+    dest: "{{ alertmanager_config_path }}/{{ alertmanager_config_file }}"
+    owner: "{{ alertmanager_user }}"
+    group: "{{ alertmanager_group }}"
+    mode: 0640
+    validate: "{{ alertmanager_bin_path }}/amtool check-config %s"
+  notify: restart alertmanager
+
+- name: Create the Systemd Unit file for the Alertmanager service
+  template:
+    src: alertmanager.systemd.j2
+    dest: /etc/systemd/system/alertmanager.service
+    owner: root
+    group: root
+    mode: 0640
+  notify: reload systemd and restart alertmanager
+  when: ansible_service_mgr == "systemd"
+
+- name: Create the Upstart Unit file for the Alertmanager service
+  template:
+    src: alertmanager.upstart.j2
+    dest: /etc/init/alertmanager.conf
+    owner: root
+    group: root
+    mode: 0640
+  notify: restart alertmanager
+  when: ansible_service_mgr == "upstart"
+
+- name: Create the generic start-stop script for the Alertmanager service
+  template:
+    src: alertmanager.service.j2
+    dest: /etc/init.d/alertmanager
+    owner: root
+    group: root
+    mode: 0750
+  notify: restart alertmanager
+  when: ansible_service_mgr not in [ "systemd", "upstart" ]
