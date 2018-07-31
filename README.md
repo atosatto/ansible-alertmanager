@@ -48,6 +48,19 @@ The complete Alertmanager configuration reference can be found at
 https://prometheus.io/docs/alerting/configuration/.<br/>
 **NOTE**: the provided Alertmanager configuration will be merged with the default one defined in `vars/main.yml`.
 
+    alertmanager_templates_path: "{{ alertmanager_config_path }}/templates"
+    alertmanager_templates: {}
+
+Alertmanager templates directory and definitions.
+
+    alertmanager_config:
+      templates:
+        - "{{ alertmanager_templates_path }}/*.tmpl"
+    alertmanager_templates:
+      "example": "{{ define "slack.myorg.text" }}https://internal.myorg.net/wiki/alerts/{{ .GroupLabels.app }}/{{ .GroupLabels.alertname }}{{ end}}"
+
+The example above, shows how to create the `example.tmpl` in the `alertmanager_templates_path` directory and how to configure Alertmanager to load it.
+
     alertmanager_listen_address: "127.0.0.1:9093"
 
 The Alertmanager WebServer listen ip address and port.<br/>

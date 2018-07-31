@@ -21,6 +21,12 @@ alertmanager_config_file: "alertmanager.yml"
 # (see https://alertmanager.io/docs/alerting/configuration/)
 alertmanager_config: {}
 
+# Alertmanager templates directory and files
+alertmanager_templates_path: "{{ alertmanager_config_path }}/templates"
+alertmanager_templates: {}
+# alertmanager_templates:
+#   "example": "{{ define "slack.myorg.text" }}https://internal.myorg.net/wiki/alerts/{{ .GroupLabels.app }}/{{ .GroupLabels.alertname }}{{ end}}"
+
 # Alertmanager WebServer listen address
 alertmanager_listen_address: "127.0.0.1:9093"
 

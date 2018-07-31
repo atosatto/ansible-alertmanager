@@ -3,7 +3,13 @@
 _alertmanager_config_default:
 
   global:
+    # The time after which an alert is declared resolved
+    # if it has not been updated.
     resolve_timeout: 5m
+
+  # The directory from which notification templates are read.
+  templates:
+    - "{{ alertmanager_templates_path }}/*.tmpl"
 
   route:
     # Send the alerts to the defaul-receiver
@@ -23,10 +29,25 @@ _alertmanager_config_default:
     # been sent successfully for an alert. (Usually ~3h or more).
     repeat_interval: 1h
 
-    group_by: ["alertname"]
+    # The labels by which incoming alerts are grouped together. For example,
+    # multiple alerts coming in for server=A and alertname=LatencyHigh would
+    # be batched into a single group.
+    group_by: ['alertname', 'service']
 
   receivers:
 
     - name: "default-receiver"
       webhook_configs:
         - url: "http://127.0.0.1:5001/"
+
+  # Inhibition rules allow to mute a set of alerts given that another alert is
+  # firing.
+  # We use this to mute any warning-level notifications if the same alert is
+  # already critical.
+  inhibit_rules:
+    - source_match:
+        severity: 'critical'
+      target_match:
+        severity: 'warning'
+      # Apply inhibition if the alertname is the same.
+      equal: ['alertname', 'service']

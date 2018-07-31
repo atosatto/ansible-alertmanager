@@ -16,6 +16,14 @@
     group: "{{ alertmanager_group }}"
     mode: 0755
 
+- name: Create the Alertmanager templates directory
+  file:
+    name: "{{ alertmanager_templates_path }}"
+    state: directory
+    owner: "{{ alertmanager_user }}"
+    group: "{{ alertmanager_group }}"
+    mode: 0755
+
 - name: Create the Alertmanager configuration file
   template:
     src: alertmanager.yml.j2
@@ -24,7 +32,17 @@
     group: "{{ alertmanager_group }}"
     mode: 0640
     validate: "{{ alertmanager_bin_path }}/amtool check-config %s"
-  notify: restart alertmanager
+  notify: reload alertmanager
+
+- name: Create the Alertmanager template files
+  copy:
+    content: "{{ item.value }}"
+    dest: "{{ alertmanager_templates_path }}/{{ item.key }}.tmpl"
+    owner: "{{ alertmanager_user }}"
+    group: "{{ alertmanager_group }}"
+    mode: 0640
+  with_dict: "{{ alertmanager_templates }}"
+  notify: reload alertmanager
 
 - name: Create the Systemd Unit file for the Alertmanager service
   template:
