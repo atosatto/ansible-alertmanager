@@ -1,6 +1,7 @@
 ---
 
 galaxy_info:
+  role_name: alertmanager
   author: Andrea Tosatto
   description: Install and Configure Prometheus Alertmanager
   issue_tracker_url: https://github.com/atosatto/ansible-alertmanager/issues
