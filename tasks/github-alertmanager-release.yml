@@ -19,6 +19,7 @@
     method: GET
     headers:
       Authorization: "{% if _alertmanager_github_api_token %}token {{ _alertmanager_github_api_token }}{% endif %}"
+  check_mode: no
   register: _alertmanager_github_release
   until: |
     'status' in _alertmanager_github_release
