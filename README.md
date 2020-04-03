@@ -20,13 +20,17 @@ Available variables are listed below, along with default values (see defaults/ma
 
     alertmanager_release_tag: "latest"
 
-The Prometheus release to be installed.
+The Alertmanager release to be installed.
 By default, the latest release published at https://github.com/prometheus/alertmanager/releases.
+
+    alertmanager_release_url: ""
+
+If set, the role will download Alertmanager from the provided URL instead of using the download URL indicated in the Alertmanager Github release metadata.
 
     alertmanager_user: "alertmanager"
     alertmanager_group: "alertmanager"
 
-Prometheus system user and group.
+Alertmanager system user and group.
 
     alertmanager_install_path: "/opt"
 
@@ -109,7 +113,7 @@ To test all the scenarios run
 
 To run a custom molecule command
 
-    $ tox -e py27-ansible23 -- molecule test -s alertmanager-latest
+    $ tox -e py27-ansible29 -- molecule test -s alertmanager-latest
 
 License
 -------

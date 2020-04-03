@@ -1,0 +1,38 @@
+---
+
+- name: Set the Github API endpoint
+  set_fact:
+    _alertmanager_github_api_url: |-
+      {% if alertmanager_release_tag == 'latest' %}
+      https://api.github.com/repos/prometheus/alertmanager/releases/latest
+      {% else %}
+      https://api.github.com/repos/prometheus/alertmanager/releases/tags/{{ alertmanager_release_tag }}
+      {% endif %}
+
+- name: Set the Github API token
+  set_fact:
+    _alertmanager_github_api_token: "{{ lookup('env', 'GITHUB_API_TOKEN') }}"
+
+- name: Fetch the Alertmanager release information from Github
+  uri:
+    url: "{{ _alertmanager_github_api_url }}"
+    method: GET
+    headers:
+      Authorization: "{% if _alertmanager_github_api_token %}token {{ _alertmanager_github_api_token }}{% endif %}"
+  register: _alertmanager_github_release
+  until: |
+    'status' in _alertmanager_github_release
+      and _alertmanager_github_release['status'] == 200
+  retries: 5
+  delay: 15
+
+- name: Get the tag of the latest Alertmanager Github release
+  set_fact:
+    alertmanager_release_tag: "{{ _alertmanager_github_release['json'] | json_query('tag_name') }}"
+  when: alertmanager_release_tag == "latest"
+
+- name: Set the Github download URL for the Alertmanager release
+  set_fact:
+    alertmanager_release_url: "{{ _alertmanager_github_release['json'] | json_query(_alertmanager_release_asset_url_query) }}"
+  vars:
+    _alertmanager_release_asset_url_query: "assets[?name=='{{ hostvars[inventory_hostname] | alertmanager_release_build(alertmanager_release_tag) }}.tar.gz'] | [0].browser_download_url"  #noqa 204

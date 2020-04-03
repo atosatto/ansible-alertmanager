@@ -3,6 +3,9 @@
 # The Alertmanager release to be installed
 alertmanager_release_tag: "latest"
 
+# The URL from which download the Alertmanager release
+alertmanager_release_url: ""
+
 # Alertmanager user and group
 alertmanager_user: "alertmanager"
 alertmanager_group: "alertmanager"
