@@ -12,7 +12,8 @@ ExecStart={{ alertmanager_bin_path }}/alertmanager \
     --web.listen-address {{ alertmanager_listen_address }} \
     --storage.path {{ alertmanager_storage_path }} \
     --data.retention {{ alertmanager_storage_retention }} \
-    --log.level {{ alertmanager_log_level }} \
+    --log.level {{ alertmanager_log_level }}{% if alertmanager_additional_cli_args | length > 0 %} \
+    {% endif -%}
     {{ alertmanager_additional_cli_args }}
 ExecReload=/bin/kill -HUP $MAINPID
 Restart=always

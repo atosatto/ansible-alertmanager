@@ -1,55 +1,5 @@
 ---
 
-- name: Set the Github releases API endpoint
-  set_fact:
-    _alertmanager_github_api_url: |-
-      {% if alertmanager_release_tag == 'latest' %}
-      https://api.github.com/repos/prometheus/alertmanager/releases/latest
-      {% else %}
-      https://api.github.com/repos/prometheus/alertmanager/releases/tags/{{ alertmanager_release_tag }}
-      {% endif %}
-
-- name: Fetch the latest Alertmanager release information from Github
-  uri:
-    url: "{{ _alertmanager_github_api_url }}"
-    method: GET
-  register: _alertmanager_github_release
-  until: _alertmanager_github_release.status == 200
-  retries: 5
-  delay: 15
-
-- name: Get the Alertmanager latest release tag
-  set_fact:
-    alertmanager_release_tag: "{{ _alertmanager_github_release['json'] | json_query('tag_name') }}"
-  when: alertmanager_release_tag == "latest"
-
-- name: Set the name of the Alertmanager release artifact
-  set_fact:
-    _alertmanager_release_build: "{{ hostvars[inventory_hostname] | alertmanager_release_build(alertmanager_release_tag) }}"
-
-- name: Make sure the Alertmanager install directory exists
-  file:
-    dest: "{{ alertmanager_install_path }}"
-    state: directory
-
-- name: Download Alertmanager
-  unarchive:
-    src: "{{ _alertmanager_github_release['json'] | json_query(_alertmanager_release_asset_url_query) }}"
-    dest: "{{ alertmanager_install_path }}"
-    creates: "{{ alertmanager_install_path }}/{{ _alertmanager_release_build }}/alertmanager"
-    remote_src: yes
-  vars:
-    _alertmanager_release_asset_url_query: "assets[?name=='{{ _alertmanager_release_build }}.tar.gz'] | [0].browser_download_url"
-
-- name: Symlink the Alertmanager binaries
-  file:
-    src: "{{ alertmanager_install_path }}/{{ _alertmanager_release_build }}/{{ item }}"
-    dest: "{{ alertmanager_bin_path }}/{{ item }}"
-    state: link
-  with_items:
-    - alertmanager
-    - amtool
-
 - name: Create the Alertmanager group
   group:
     name: "{{ alertmanager_group }}"
@@ -61,3 +11,39 @@
     group: "{{ alertmanager_group }}"
     system: yes
     createhome: no
+
+- include: github-alertmanager-release.yml
+  when: not alertmanager_release_url
+
+- name: Make sure the Alertmanager install directory exists
+  file:
+    dest: "{{ alertmanager_install_path }}"
+    state: directory
+    owner: "root"
+    group: "root"
+    mode: 0755
+
+- name: Get the name of the Alertmanager release archive
+  set_fact:
+    _alertmanager_archive: "{{ alertmanager_release_url | basename }}"
+
+- name: Set the Alertmanager installation path
+  set_fact:
+    _alertmanager_install_path: "{{ alertmanager_install_path }}/{{ _alertmanager_archive | regex_replace('\\.zip|\\.gz|\\.tar|\\.tgz|\\.bzip','') }}"
+
+- name: Download Alertmanager
+  unarchive:
+    src: "{{ alertmanager_release_url }}"
+    dest: "{{ alertmanager_install_path }}"
+    creates: "{{ _alertmanager_install_path }}/alertmanager"
+    remote_src: yes
+
+- name: Symlink the Alertmanager binaries
+  file:
+    src: "{{ _alertmanager_install_path }}/{{ item }}"
+    dest: "{{ alertmanager_bin_path }}/{{ item }}"
+    state: link
+  notify: restart alertmanager
+  with_items:
+    - alertmanager
+    - amtool

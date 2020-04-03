@@ -11,13 +11,13 @@ def test_alertmanager_config(host):
     assert d.exists
     assert d.user == 'alertmanager'
     assert d.group == 'alertmanager'
-    assert oct(d.mode) == '0755'
+    assert oct(d.mode) == 0o755
 
     f = host.file('/etc/alertmanager/alertmanager.yml')
     assert f.exists
     assert f.user == 'alertmanager'
     assert f.group == 'alertmanager'
-    assert oct(f.mode) == '0640'
+    assert oct(f.mode) == 0o640
 
     host.run("/usr/local/bin/amtool check-config /etc/alertmanager/alertmanager.yml").rc == 0
 
@@ -28,7 +28,7 @@ def test_alertmanager_tsdb(host):
     assert d.exists
     assert d.user == 'alertmanager'
     assert d.group == 'alertmanager'
-    assert oct(d.mode) == '0755'
+    assert oct(d.mode) == 0o755
 
 
 def test_alertmanager_service(host):
