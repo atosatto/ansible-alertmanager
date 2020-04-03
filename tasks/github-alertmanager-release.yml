@@ -35,4 +35,4 @@
   set_fact:
     alertmanager_release_url: "{{ _alertmanager_github_release['json'] | json_query(_alertmanager_release_asset_url_query) }}"
   vars:
-    _alertmanager_release_asset_url_query: "assets[?name=='{{ hostvars[inventory_hostname] | alertmanager_release_build(alertmanager_release_tag) }}.tar.gz'] | [0].browser_download_url"  #noqa 204
+    _alertmanager_release_asset_url_query: "assets[?name=='{{ hostvars[inventory_hostname] | alertmanager_release_build(alertmanager_release_tag) }}.tar.gz'] | [0].browser_download_url"  # noqa 204
